@@ -4,7 +4,6 @@ import net.acomputerdog.loginlogs.main.LLPlayer;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.Reader;
 import java.io.Writer;
 import java.util.*;
 import java.util.logging.Logger;
@@ -15,25 +14,11 @@ public class PlayerList {
     private final List<LLPlayer> playerList = new ArrayList<>();
     private final Map<String, LLPlayer> uuidMap = new HashMap<>();
     private final Map<String, LLPlayer> nameMap = new HashMap<>();
-    //private final LLPlayer[] recentLogins = new LLPlayer[MAX_LOGINS];
     private final List<LLPlayer> loginList = new ArrayList<>(MAX_LOGINS + 1);
-    //private final Set<LLPlayer> recentPlayers = new HashSet<>();
     private final Logger logger;
-    //private final Comparator<LLPlayer> playerSorter;
 
     public PlayerList(Logger logger) {
         this.logger = logger;
-        /*
-        playerSorter = (o1, o2) -> {
-            if (o1 != null && o2 != null) {
-                return (int)o1.getLoginTime() - (int)o2.getLoginTime();
-            } else if (o1 == null) {
-                return -1; //null goes below not null
-            } else {
-                return 1; //not null goes above null
-            }
-        };
-        */
     }
 
     public void load(BufferedReader in) {
@@ -116,13 +101,5 @@ public class PlayerList {
         while (loginList.size() > MAX_LOGINS) {
             loginList.remove(loginList.size() - 1);
         }
-        /*if (!recentPlayers.contains(player)) {
-            recentPlayers.add(player);
-            LLPlayer last = recentLogins[MAX_LOGINS - 1];
-            recentPlayers.remove(last);
-            recentLogins[MAX_LOGINS - 1] = player;
-            Arrays.sort(recentLogins, playerSorter);
-        }
-        */
     }
 }
