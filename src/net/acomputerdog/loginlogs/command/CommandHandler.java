@@ -23,28 +23,30 @@ public class CommandHandler {
             String cmd = command.getName().toLowerCase();
             switch (cmd) {
                 case "lastlog":
-                    return onLastLog(sender, command, label, args);
+                    onLastLog(sender, args);
                 case "lastlogin":
-                    return onLastLogin(sender, command, label, args);
+                    onLastLogin(sender, args);
                 case "lastlogout":
-                    return onLastLogout(sender, command, label, args);
+                    onLastLogout(sender, args);
                 case "lastlogins":
-                    return onLastLogins(sender, command, label, args);
+                    onLastLogins(sender);
                 case "firstlogin":
-                    return onFirstLogin(sender, command, label, args);
+                    onFirstLogin(sender, args);
                 case "lastlogouts":
-                    return onLastLogouts(sender, command, label, args);
+                    onLastLogouts(sender);
                 default:
-                    return false;
+                    sender.sendMessage(ChatColor.RED + "Illegal command passed to plugin!  Please report this!");
             }
+            return true;
         } catch (Exception e) {
             sender.sendMessage(ChatColor.RED + "Uncaught exception while processing the command!");
             sender.sendMessage(ChatColor.RED + "Please report this: " + e.getClass().getName());
+            e.printStackTrace();
             return false;
         }
     }
 
-    private boolean onLastLogins(CommandSender sender, Command command, String label, String[] args) {
+    private void onLastLogins(CommandSender sender) {
         if (sender.hasPermission("loginlogs.command.lastlogins")) {
             sender.sendMessage(ChatColor.AQUA + "Recent logins:");
             List<LLPlayer> recentLogins = playerList.getRecentLogins();
@@ -56,10 +58,9 @@ public class CommandHandler {
         } else {
             sender.sendMessage(ChatColor.RED + "You do not have permission!");
         }
-        return true;
     }
 
-    private boolean onLastLogouts(CommandSender sender, Command command, String label, String[] args) {
+    private void onLastLogouts(CommandSender sender) {
         if (sender.hasPermission("loginlogs.command.lastlogouts")) {
             sender.sendMessage(ChatColor.AQUA + "Recent logouts:");
             List<LLPlayer> recentLogouts = playerList.getRecentLogouts();
@@ -71,10 +72,9 @@ public class CommandHandler {
         } else {
             sender.sendMessage(ChatColor.RED + "You do not have permission!");
         }
-        return true;
     }
 
-    private boolean onLastLog(CommandSender sender, Command command, String label, String[] args) {
+    private void onLastLog(CommandSender sender, String[] args) {
         if (sender.hasPermission("loginlogs.command.lastlog")) {
             if (args.length >= 1) {
                 String id = args[0];
@@ -92,14 +92,12 @@ public class CommandHandler {
             } else {
                 sender.sendMessage(ChatColor.RED + "Invalid usage!  Use lastlog <name | uuid>.");
             }
-            return true;
         } else {
             sender.sendMessage(ChatColor.RED + "You do not have permission!");
-            return true;
         }
     }
 
-    private boolean onLastLogin(CommandSender sender, Command command, String label, String[] args) {
+    private void onLastLogin(CommandSender sender, String[] args) {
         if (sender.hasPermission("loginlogs.command.lastlogin")) {
             if (args.length >= 1) {
                 String id = args[0];
@@ -112,14 +110,12 @@ public class CommandHandler {
             } else {
                 sender.sendMessage(ChatColor.RED + "Invalid usage!  Use lastlogin <name | uuid>.");
             }
-            return true;
         } else {
             sender.sendMessage(ChatColor.RED + "You do not have permission!");
-            return true;
         }
     }
 
-    private boolean onLastLogout(CommandSender sender, Command command, String label, String[] args) {
+    private void onLastLogout(CommandSender sender, String[] args) {
         if (sender.hasPermission("loginlogs.command.lastlogout")) {
             if (args.length >= 1) {
                 String id = args[0];
@@ -132,14 +128,12 @@ public class CommandHandler {
             } else {
                 sender.sendMessage(ChatColor.RED + "Invalid usage!  Use lastlogout <name | uuid>.");
             }
-            return true;
         } else {
             sender.sendMessage(ChatColor.RED + "You do not have permission!");
-            return true;
         }
     }
 
-    private boolean onFirstLogin(CommandSender sender, Command command, String label, String[] args) {
+    private void onFirstLogin(CommandSender sender, String[] args) {
         if (sender.hasPermission("loginlogs.command.firstlogin")) {
             if (args.length >= 1) {
                 String id = args[0];
@@ -152,10 +146,8 @@ public class CommandHandler {
             } else {
                 sender.sendMessage(ChatColor.RED + "Invalid usage!  Use firstlogin <name | uuid>.");
             }
-            return true;
         } else {
             sender.sendMessage(ChatColor.RED + "You do not have permission!");
-            return true;
         }
     }
 
@@ -169,7 +161,7 @@ public class CommandHandler {
     }
 
     private String formatLastLogin(LLPlayer player) {
-        return formatTime(player.getLastLogout());
+        return formatTime(player.getLastLogin());
     }
 
     private String formatFirstLogin(LLPlayer player) {
