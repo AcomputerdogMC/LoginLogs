@@ -32,6 +32,8 @@ public class CommandHandler {
                     return onLastLogins(sender, command, label, args);
                 case "firstlogin":
                     return onFirstLogin(sender, command, label, args);
+                case "lastlogouts":
+                    return onLastLogouts(sender, command, label, args);
                 default:
                     return false;
             }
@@ -49,6 +51,21 @@ public class CommandHandler {
             for (LLPlayer player : recentLogins) {
                 if (player != null) {
                     sender.sendMessage(ChatColor.DARK_AQUA + player.getName() + " - " + formatLastLogin(player));
+                }
+            }
+        } else {
+            sender.sendMessage(ChatColor.RED + "You do not have permission!");
+        }
+        return true;
+    }
+
+    private boolean onLastLogouts(CommandSender sender, Command command, String label, String[] args) {
+        if (sender.hasPermission("loginlogs.command.lastlogouts")) {
+            sender.sendMessage(ChatColor.AQUA + "Recent logouts:");
+            List<LLPlayer> recentLogouts = playerList.getRecentLogouts();
+            for (LLPlayer player : recentLogouts) {
+                if (player != null) {
+                    sender.sendMessage(ChatColor.DARK_AQUA + player.getName() + " - " + formatLastLogout(player));
                 }
             }
         } else {

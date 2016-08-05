@@ -15,6 +15,7 @@ public class PlayerList {
     private final Map<String, LLPlayer> uuidMap = new HashMap<>();
     private final Map<String, LLPlayer> nameMap = new HashMap<>();
     private final List<LLPlayer> loginList = new ArrayList<>(MAX_LOGINS + 1);
+    private final List<LLPlayer> logoutList = new ArrayList<>(MAX_LOGINS + 1);
     private final Logger logger;
 
     public PlayerList(Logger logger) {
@@ -24,19 +25,25 @@ public class PlayerList {
     public void load(BufferedReader in) {
         in.lines().forEach(line -> {
             String[] parts = line.split(":");
-            if (parts.length != 4) {
-                logger.warning("Malformed line: \"" + line + "\"");
-            } else {
+            if (parts.length == 4 || parts.length == 5) {
                 try {
                     String uuid = parts[0];
                     String name = parts[1];
-                    long login = Long.parseLong(parts[2]);
-                    long logout = Long.parseLong(parts[3]);
-                    LLPlayer player = new LLPlayer(uuid, name, login, logout);
+                    long lastLogin = Long.parseLong(parts[2]);
+                    long lastLogout = Long.parseLong(parts[3]);
+                    long firstLogin;
+                    if (parts.length == 5) {
+                        firstLogin = Long.parseLong(parts[4]);
+                    } else {
+                        firstLogin = lastLogin;
+                    }
+                    LLPlayer player = new LLPlayer(uuid, name, lastLogin, lastLogout, firstLogin);
                     registerPlayer(player);
                 } catch (NumberFormatException e) {
                     logger.warning("Malformed line: \"" + line + "\"");
                 }
+            } else {
+                logger.warning("Malformed line: \"" + line + "\"");
             }
         });
         logger.info("Loaded " + uuidMap.size() + " player records."); //can't write a counter variable from a lambada...
@@ -95,11 +102,23 @@ public class PlayerList {
         return Collections.unmodifiableList(loginList);
     }
 
+    public List<LLPlayer> getRecentLogouts() {
+        return Collections.unmodifiableList(logoutList);
+    }
+
     public void updateRecentLogins(LLPlayer player) {
         loginList.remove(player);
         loginList.add(0, player);
         while (loginList.size() > MAX_LOGINS) {
             loginList.remove(loginList.size() - 1);
+        }
+    }
+
+    public void updateRecentLogouts(LLPlayer player) {
+        logoutList.remove(player);
+        logoutList.add(0, player);
+        while (logoutList.size() > MAX_LOGINS) {
+            logoutList.remove(logoutList.size() - 1);
         }
     }
 }

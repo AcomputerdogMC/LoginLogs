@@ -86,7 +86,7 @@ public class PluginLoginLogs extends JavaPlugin implements Listener {
         playerList.updateRecentLogins(player);
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerLogout(PlayerQuitEvent e) {
         Player p = e.getPlayer();
         String uuid = p.getUniqueId().toString();
@@ -96,6 +96,7 @@ public class PluginLoginLogs extends JavaPlugin implements Listener {
         }
         LLPlayer player = playerList.getOrCreate(uuid, name);
         player.setLastLogout(System.currentTimeMillis());
+        playerList.updateRecentLogouts(player);
     }
 
     @Override

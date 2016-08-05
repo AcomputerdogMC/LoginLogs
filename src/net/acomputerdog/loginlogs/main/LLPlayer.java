@@ -10,7 +10,7 @@ public class LLPlayer implements Comparable<LLPlayer> {
     private long firstLogin;
     private long lastLogout;
 
-    public LLPlayer(String uuid, String name, long lastLogin, long firstLogin, long lastLogout) {
+    public LLPlayer(String uuid, String name, long lastLogin, long lastLogout, long firstLogin) {
         this.uuid = uuid;
         this.name = name;
         this.lastLogin = lastLogin;

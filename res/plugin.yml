@@ -8,23 +8,28 @@ commands:
   lastlog:
     description: Look up log info for a player
     permission: loginlogs.command.lastlog
-    usage: Use /lastlog <name | uuid>
+    usage: /lastlog <name | uuid>
     aliases: ll
   lastlogin:
     description: Look up player's last login
     permission: loginlogs.command.lastlogin
-    usage: Use /lastlogin <name | uuid>
+    usage: /lastlogin <name | uuid>
     aliases: lli
   lastlogout:
     description: Look up player's last logout
     permission: loginlogs.command.lastlogout
-    usage: Use /lastlogout <name | uuid>
+    usage: /lastlogout <name | uuid>
     aliases: llo
   lastlogins:
     description: Look up recent player logins
     permission: loginlogs.command.lastlogins
-    usage: Use /lastlogins
+    usage: /lastlogins
     aliases: [lls, lastlogs]
+  lastlogouts:
+    description: Look up recent player logouts
+    permission: loginlogs.command.lastlogouts
+    usage: /lastlogouts
+    aliases: [llos]
   firstlogin:
     description: Look up player's first login
     permission: loginlogs.command.firstlogin
@@ -53,6 +58,9 @@ permissions:
   loginlogs.command.lastlogins:
     description: Use /lastlogins
     default: true
+  loginlogs.command.lastlogouts:
+    description: Use /lastlogouts
+    default: op
   loginlogs.command.firstlogin:
     description: Use /firstlogin
     default: op
