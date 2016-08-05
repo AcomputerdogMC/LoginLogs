@@ -24,16 +24,22 @@ public class CommandHandler {
             switch (cmd) {
                 case "lastlog":
                     onLastLog(sender, args);
+                    break;
                 case "lastlogin":
                     onLastLogin(sender, args);
+                    break;
                 case "lastlogout":
                     onLastLogout(sender, args);
+                    break;
                 case "lastlogins":
                     onLastLogins(sender);
+                    break;
                 case "firstlogin":
                     onFirstLogin(sender, args);
+                    break;
                 case "lastlogouts":
                     onLastLogouts(sender);
+                    break;
                 default:
                     sender.sendMessage(ChatColor.RED + "Illegal command passed to plugin!  Please report this!");
             }
