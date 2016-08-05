@@ -6,18 +6,20 @@ public class LLPlayer implements Comparable<LLPlayer> {
     private final String uuid;
     private String name;
 
-    private long loginTime;
-    private long logoutTime;
+    private long lastLogin;
+    private long firstLogin;
+    private long lastLogout;
 
-    public LLPlayer(String uuid, String name, long loginTime, long logoutTime) {
+    public LLPlayer(String uuid, String name, long lastLogin, long firstLogin, long lastLogout) {
         this.uuid = uuid;
         this.name = name;
-        this.loginTime = loginTime;
-        this.logoutTime = logoutTime;
+        this.lastLogin = lastLogin;
+        this.firstLogin = firstLogin;
+        this.lastLogout = lastLogout;
     }
 
     public LLPlayer(String uuid, String name) {
-        this(uuid, name, NEVER, NEVER);
+        this(uuid, name, NEVER, NEVER, NEVER);
     }
 
     public LLPlayer(String uuid) {
@@ -36,20 +38,28 @@ public class LLPlayer implements Comparable<LLPlayer> {
         this.name = name;
     }
 
-    public long getLoginTime() {
-        return loginTime;
+    public long getLastLogin() {
+        return lastLogin;
     }
 
-    public void setLoginTime(long loginTime) {
-        this.loginTime = loginTime;
+    public void setLastLogin(long loginTime) {
+        this.lastLogin = loginTime;
     }
 
-    public long getLogoutTime() {
-        return logoutTime;
+    public long getFirstLogin() {
+        return firstLogin;
     }
 
-    public void setLogoutTime(long logoutTime) {
-        this.logoutTime = logoutTime;
+    public void setFirstLogin(long firstLogin) {
+        this.firstLogin = firstLogin;
+    }
+
+    public long getLastLogout() {
+        return lastLogout;
+    }
+
+    public void setLastLogout(long lastLogout) {
+        this.lastLogout = lastLogout;
     }
 
     public String getCombinedName() {
@@ -76,11 +86,11 @@ public class LLPlayer implements Comparable<LLPlayer> {
 
     @Override
     public String toString() {
-        return uuid + ":" + name + ":" + loginTime + ":" + logoutTime;
+        return uuid + ":" + name + ":" + lastLogin + ":" + lastLogout + ":" + firstLogin;
     }
 
     @Override
     public int compareTo(LLPlayer o) {
-        return (int)(o.loginTime - loginTime);
+        return (int) (o.lastLogin - lastLogin);
     }
 }

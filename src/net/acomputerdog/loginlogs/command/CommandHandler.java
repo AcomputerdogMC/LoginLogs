@@ -30,6 +30,8 @@ public class CommandHandler {
                     return onLastLogout(sender, command, label, args);
                 case "lastlogins":
                     return onLastLogins(sender, command, label, args);
+                case "firstlogin":
+                    return onFirstLogin(sender, command, label, args);
                 default:
                     return false;
             }
@@ -44,10 +46,9 @@ public class CommandHandler {
         if (sender.hasPermission("loginlogs.command.lastlogins")) {
             sender.sendMessage(ChatColor.AQUA + "Recent logins:");
             List<LLPlayer> recentLogins = playerList.getRecentLogins();
-            for (int i = 0; i < recentLogins.size(); i++) {
-                LLPlayer player = recentLogins.get(i);
+            for (LLPlayer player : recentLogins) {
                 if (player != null) {
-                    sender.sendMessage(ChatColor.DARK_AQUA + player.getName() + " - " + getLogin(player));
+                    sender.sendMessage(ChatColor.DARK_AQUA + player.getName() + " - " + formatLastLogin(player));
                 }
             }
         } else {
@@ -64,8 +65,9 @@ public class CommandHandler {
                 if (player != null) {
                     sender.sendMessage(new String[]{
                             ChatColor.AQUA + "Log info for player " + player.getCombinedName() + ":",
-                            ChatColor.DARK_AQUA + "Last known login: " + getLogin(player),
-                            ChatColor.DARK_AQUA + "Last known logout: " + getLogout(player)
+                            ChatColor.DARK_AQUA + "First known login: " + formatFirstLogin(player),
+                            ChatColor.DARK_AQUA + "Last known login: " + formatLastLogin(player),
+                            ChatColor.DARK_AQUA + "Last known logout: " + formatLastLogout(player)
                     });
                 } else {
                     sender.sendMessage(ChatColor.RED + "Unable to find a player by that name/uuid!");
@@ -86,7 +88,7 @@ public class CommandHandler {
                 String id = args[0];
                 LLPlayer player = playerList.find(id);
                 if (player != null) {
-                    sender.sendMessage(ChatColor.DARK_AQUA + "Last known login for player " + player.getCombinedName() + ": " + getLogin(player));
+                    sender.sendMessage(ChatColor.DARK_AQUA + "Last known login for player " + player.getCombinedName() + ": " + formatLastLogin(player));
                 } else {
                     sender.sendMessage(ChatColor.RED + "Unable to find a player by that name/uuid!");
                 }
@@ -106,7 +108,7 @@ public class CommandHandler {
                 String id = args[0];
                 LLPlayer player = playerList.find(id);
                 if (player != null) {
-                    sender.sendMessage(ChatColor.DARK_AQUA + "Last known logout for player " + player.getCombinedName() + ": " + getLogout(player));
+                    sender.sendMessage(ChatColor.DARK_AQUA + "Last known logout for player " + player.getCombinedName() + ": " + formatLastLogout(player));
                 } else {
                     sender.sendMessage(ChatColor.RED + "Unable to find a player by that name/uuid!");
                 }
@@ -120,8 +122,27 @@ public class CommandHandler {
         }
     }
 
-    private String getLogin(LLPlayer player) {
-        long time = player.getLoginTime();
+    private boolean onFirstLogin(CommandSender sender, Command command, String label, String[] args) {
+        if (sender.hasPermission("loginlogs.command.firstlogin")) {
+            if (args.length >= 1) {
+                String id = args[0];
+                LLPlayer player = playerList.find(id);
+                if (player != null) {
+                    sender.sendMessage(ChatColor.DARK_AQUA + "First known login for player " + player.getCombinedName() + ": " + formatFirstLogin(player));
+                } else {
+                    sender.sendMessage(ChatColor.RED + "Unable to find a player by that name/uuid!");
+                }
+            } else {
+                sender.sendMessage(ChatColor.RED + "Invalid usage!  Use firstlogin <name | uuid>.");
+            }
+            return true;
+        } else {
+            sender.sendMessage(ChatColor.RED + "You do not have permission!");
+            return true;
+        }
+    }
+
+    private String formatTime(long time) {
         if (time == LLPlayer.NEVER) {
             return "N/A";
         } else {
@@ -130,13 +151,15 @@ public class CommandHandler {
         }
     }
 
-    private String getLogout(LLPlayer player) {
-        long time = player.getLogoutTime();
-        if (time == LLPlayer.NEVER) {
-            return "N/A";
-        } else {
-            date.setTime(time);
-            return date.toString();
-        }
+    private String formatLastLogin(LLPlayer player) {
+        return formatTime(player.getLastLogout());
+    }
+
+    private String formatFirstLogin(LLPlayer player) {
+        return formatTime(player.getFirstLogin());
+    }
+
+    private String formatLastLogout(LLPlayer player) {
+        return formatTime(player.getLastLogout());
     }
 }

@@ -82,7 +82,7 @@ public class PluginLoginLogs extends JavaPlugin implements Listener {
             name = "";
         }
         LLPlayer player = playerList.getOrCreate(uuid, name);
-        player.setLoginTime(System.currentTimeMillis());
+        player.setLastLogin(System.currentTimeMillis());
         playerList.updateRecentLogins(player);
     }
 
@@ -95,7 +95,7 @@ public class PluginLoginLogs extends JavaPlugin implements Listener {
             name = "";
         }
         LLPlayer player = playerList.getOrCreate(uuid, name);
-        player.setLogoutTime(System.currentTimeMillis());
+        player.setLastLogout(System.currentTimeMillis());
     }
 
     @Override

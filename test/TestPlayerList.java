@@ -4,10 +4,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.*;
-import java.nio.ByteBuffer;
 import java.util.logging.Logger;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class TestPlayerList {
 
@@ -57,15 +57,15 @@ public class TestPlayerList {
         assertEquals("acomputerdog", player1.getName());
         assertEquals("aaaa-aaaa-aaaa-aaaa", player1.getUuid());
         assertEquals("acomputerdog[aaaa-aaaa-aaaa-aaaa]", player1.getCombinedName());
-        assertEquals(123456, player1.getLoginTime());
-        assertEquals(654321, player1.getLogoutTime());
+        assertEquals(123456, player1.getLastLogin());
+        assertEquals(654321, player1.getLastLogout());
 
         assertNotNull(player2);
         assertEquals("immortalkitten", player2.getName());
         assertEquals("bbbb-bbbb-bbbb-bbbb", player2.getUuid());
         assertEquals("immortalkitten[bbbb-bbbb-bbbb-bbbb]", player2.getCombinedName());
-        assertEquals(-1L, player2.getLoginTime());
-        assertEquals(123456, player2.getLogoutTime());
+        assertEquals(-1L, player2.getLastLogin());
+        assertEquals(123456, player2.getLastLogout());
     }
 
 }
