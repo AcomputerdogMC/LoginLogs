@@ -1,5 +1,5 @@
 name: LoginLogs
-version: 1.3.2
+version: 1.3.3
 description: Records player logins and logouts
 author: acomputerdog
 main: net.acomputerdog.loginlogs.PluginLoginLogs
@@ -8,22 +8,22 @@ commands:
   lastlog:
     description: Look up log info for a player
     permission: loginlogs.command.lastlog
-    usage: Incorrect usage!  Use /lastlog <name | uuid>
+    usage: Use /lastlog <name | uuid>
     aliases: ll
   lastlogin:
-    description: Look up login info for a player
+    description: Look up player's last login
     permission: loginlogs.command.lastlogin
-    usage: Incorrect usage!  Use /lastlogin <name | uuid>
+    usage: Use /lastlogin <name | uuid>
     aliases: lli
   lastlogout:
-    description: Look up logout info for a player
+    description: Look up player's last logout
     permission: loginlogs.command.lastlogout
-    usage: Incorrect usage!  Use /lastlogout <name | uuid>
+    usage: Use /lastlogout <name | uuid>
     aliases: llo
   lastlogins:
     description: Look up recent player logins
     permission: loginlogs.command.lastlogins
-    usage: Incorrect usage!  Use /lastlogins
+    usage: Use /lastlogins
     aliases: [lls, lastlogs]
 
 permissions:
