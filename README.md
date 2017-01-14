@@ -1,5 +1,5 @@
 # LoginLogs - Bukkit plugin to record player login and logout times
----
+
 LoginLogs is a simple plugin to record the login and logout times of players on a server.  
 
 commands:
