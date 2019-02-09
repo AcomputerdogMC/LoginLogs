@@ -1,9 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" build-on-make="true" name="LoginLogs:jar">
-    <output-path>$PROJECT_DIR$/out/</output-path>
-    <root id="archive" name="LoginLogs.jar">
-      <element id="module-output" name="LoginLogs" />
-      <element id="file-copy" path="$PROJECT_DIR$/LICENSE" />
-    </root>
-  </artifact>
-</component>
