@@ -13,7 +13,7 @@ import static org.junit.Assert.assertNotNull;
 
 public class TestPlayerList {
 
-    private static final String CONF = "aaaa-aaaa-aaaa-aaaa:acomputerdog:123456:654321\nbbbb-bbbb-bbbb-bbbb:immortalkitten:-1:123456";
+    private static final String CONF = "aaaa-aaaa-aaaa-aaaa:acomputerdog:123456:654321:12345\nbbbb-bbbb-bbbb-bbbb:immortalkitten:123456:-1:123456";
 
     private static PlayerList playerList;
 
@@ -58,16 +58,18 @@ public class TestPlayerList {
         assertNotNull(player1);
         assertEquals("acomputerdog", player1.getName());
         assertEquals("aaaa-aaaa-aaaa-aaaa", player1.getUuid());
-        assertEquals("acomputerdog[aaaa-aaaa-aaaa-aaaa]", player1.getCombinedName());
+        assertEquals("acomputerdog (aaaa-aaaa-aaaa-aaaa)", player1.getCombinedName());
         assertEquals(123456, player1.getLastLogin());
         assertEquals(654321, player1.getLastLogout());
+        assertEquals(12345, player1.getFirstLogin());
 
         assertNotNull(player2);
         assertEquals("immortalkitten", player2.getName());
         assertEquals("bbbb-bbbb-bbbb-bbbb", player2.getUuid());
-        assertEquals("immortalkitten[bbbb-bbbb-bbbb-bbbb]", player2.getCombinedName());
-        assertEquals(-1L, player2.getLastLogin());
-        assertEquals(123456, player2.getLastLogout());
+        assertEquals("immortalkitten (bbbb-bbbb-bbbb-bbbb)", player2.getCombinedName());
+        assertEquals(123456, player2.getLastLogin());
+        assertEquals(-1L, player2.getLastLogout());
+        assertEquals(123456, player2.getFirstLogin());
     }
 
 }

@@ -40,7 +40,7 @@ public class PluginLoginLogs extends JavaPlugin implements Listener {
                 getLogger().warning("Player logs do not exist.  Logs will not be loaded.");
             }
 
-            commandHandler = new CommandHandler(plugin, playerList);
+            commandHandler = new CommandHandler(this, playerList);
 
             getServer().getPluginManager().registerEvents(this, this);
 
