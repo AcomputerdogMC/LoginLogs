@@ -14,7 +14,11 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.*;
+import java.util.logging.Level;
 
+/**
+ * Plugin main class
+ */
 public class PluginLoginLogs extends JavaPlugin implements Listener {
     private PlayerList playerList;
     private CommandHandler commandHandler;
@@ -31,46 +35,39 @@ public class PluginLoginLogs extends JavaPlugin implements Listener {
 
             playerList = new PlayerList(getLogger());
             if (playerFile.exists()) {
-                try {
-                    BufferedReader reader = new BufferedReader(new FileReader(playerFile));
-                    playerList.load(reader);
-                    reader.close();
-                } catch (Exception e) {
-                    getLogger().warning("Exception loading player logs!");
-                    e.printStackTrace();
-                }
+                loadPlayerFile();
             } else {
                 getLogger().warning("Player logs do not exist.  Logs will not be loaded.");
             }
 
-            commandHandler = new CommandHandler(playerList);
+            commandHandler = new CommandHandler(plugin, playerList);
 
             getServer().getPluginManager().registerEvents(this, this);
 
             getLogger().info("Startup complete.");
-        } catch (Throwable t) {
-            getLogger().severe("Uncaught exception starting LoginLogs!  LL may not work!");
-            throw new RuntimeException(t);
+        } catch (Exception e) {
+            getLogger().log(Level.SEVERE, "Uncaught exception starting LoginLogs", e);
+            getServer().getPluginManager().disablePlugin(this);
+        }
+    }
+
+    private void loadPlayerFile() {
+        try (BufferedReader reader = new BufferedReader(new FileReader(playerFile))) {
+            playerList.load(reader);
+        } catch (IOException e) {
+            getLogger().log(Level.SEVERE, "IO error loading player data.", e);
         }
     }
 
     @Override
     public void onDisable() {
-        try {
-            try {
-                Writer writer = new FileWriter(playerFile);
-                playerList.save(writer);
-                writer.close();
-            } catch (Exception e) {
-                getLogger().warning("Exception saving player logs!");
-                e.printStackTrace();
-            }
-
-            getLogger().info("Shutdown complete.");
-        } catch (Throwable t) {
-            getLogger().severe("Uncaught exception stopping LoginLogs!");
-            t.printStackTrace();
+        try (Writer writer = new FileWriter(playerFile)) {
+            playerList.save(writer);
+        } catch (IOException e) {
+            getLogger().log(Level.SEVERE, "Exception saving player logs", e);
         }
+
+        getLogger().info("Shutdown complete.");
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

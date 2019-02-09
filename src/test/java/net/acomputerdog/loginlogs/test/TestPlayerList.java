@@ -13,14 +13,14 @@ import static org.junit.Assert.assertNotNull;
 
 public class TestPlayerList {
 
-    private static final String conf = "aaaa-aaaa-aaaa-aaaa:acomputerdog:123456:654321\nbbbb-bbbb-bbbb-bbbb:immortalkitten:-1:123456";
+    private static final String CONF = "aaaa-aaaa-aaaa-aaaa:acomputerdog:123456:654321\nbbbb-bbbb-bbbb-bbbb:immortalkitten:-1:123456";
 
     private static PlayerList playerList;
 
     @BeforeClass
     public static void init() {
         playerList = new PlayerList(Logger.getLogger("Test"));
-        playerList.load(new BufferedReader(new InputStreamReader(new ByteArrayInputStream(conf.getBytes()))));
+        playerList.load(new BufferedReader(new InputStreamReader(new ByteArrayInputStream(CONF.getBytes()))));
     }
 
     @Test
@@ -51,7 +51,7 @@ public class TestPlayerList {
         }
         String save = out.toString();
 
-        assertEquals(conf, save);
+        assertEquals(CONF, save);
     }
 
     private void checkPlayers(LLPlayer player1, LLPlayer player2) {

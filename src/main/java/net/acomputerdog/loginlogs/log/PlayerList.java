@@ -8,6 +8,11 @@ import java.io.Writer;
 import java.util.*;
 import java.util.logging.Logger;
 
+/**
+ * Stores list of players and how long they have been online / offline
+ *
+ * TODO replace this with a database wtf
+ */
 public class PlayerList {
     public static final int MAX_LOGINS = 5;
 

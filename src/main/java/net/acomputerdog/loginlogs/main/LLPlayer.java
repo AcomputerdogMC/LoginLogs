@@ -1,5 +1,10 @@
 package net.acomputerdog.loginlogs.main;
 
+/**
+ * Player-related data from data files
+ *
+ * TODO rewrite this when PlayerList is replaced with a database
+ */
 public class LLPlayer implements Comparable<LLPlayer> {
     public static final long NEVER = -1L;
 

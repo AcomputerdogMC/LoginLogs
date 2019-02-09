@@ -1,5 +1,6 @@
 package net.acomputerdog.loginlogs.command;
 
+import net.acomputerdog.loginlogs.PluginLoginLogs;
 import net.acomputerdog.loginlogs.log.PlayerList;
 import net.acomputerdog.loginlogs.main.LLPlayer;
 import org.bukkit.ChatColor;
@@ -8,12 +9,20 @@ import org.bukkit.command.CommandSender;
 
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
 
+/**
+ * Command handler for LoginLogs
+ *
+ * TODO refactor to avoid duplicated permission checks / etc
+ */
 public class CommandHandler {
     private final PlayerList playerList;
     private final Date date;
+    private final PluginLoginLogs plugin;
 
-    public CommandHandler(PlayerList playerList) {
+    public CommandHandler(PluginLoginLogs plugin, PlayerList playerList) {
+        this.plugin = plugin;
         this.playerList = playerList;
         this.date = new Date();
     }
@@ -42,12 +51,14 @@ public class CommandHandler {
                     break;
                 default:
                     sender.sendMessage(ChatColor.RED + "Illegal command passed to plugin!  Please report this!");
+                    plugin.getLogger().log(Level.WARNING, "Unexpected command: " + command.getName());
             }
             return true;
         } catch (Exception e) {
             sender.sendMessage(ChatColor.RED + "Uncaught exception while processing the command!");
             sender.sendMessage(ChatColor.RED + "Please report this: " + e.getClass().getName());
-            e.printStackTrace();
+
+            plugin.getLogger().log(Level.SEVERE, "Exception handling command: " + command.getName(), e);
             return false;
         }
     }
