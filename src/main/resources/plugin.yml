@@ -3,6 +3,7 @@ version: ${version}
 description: Records player logins and logouts
 author: acomputerdog
 main: net.acomputerdog.loginlogs.PluginLoginLogs
+api-version: 1.13
 
 commands:
   lastlog:
