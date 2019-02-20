@@ -10,7 +10,7 @@ commands:
     description: Look up log info for a player
     permission: loginlogs.command.lastlog
     usage: /lastlog <name | uuid>
-    aliases: ll
+    aliases: llp
   lastlogin:
     description: Look up player's last login
     permission: loginlogs.command.lastlogin
@@ -25,12 +25,12 @@ commands:
     description: Look up recent player logins
     permission: loginlogs.command.lastlogins
     usage: /lastlogins
-    aliases: [lls, lastlogs]
+    aliases: [ll, li, llis, lastlogs]
   lastlogouts:
     description: Look up recent player logouts
     permission: loginlogs.command.lastlogouts
     usage: /lastlogouts
-    aliases: [llos]
+    aliases: [lo, llos]
   firstlogin:
     description: Look up player's first login
     permission: loginlogs.command.firstlogin
