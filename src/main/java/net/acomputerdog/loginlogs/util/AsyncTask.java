@@ -18,6 +18,10 @@ public class AsyncTask<T> implements Runnable {
         this.callback = callback;
     }
 
+    public AsyncTask(Plugin plugin, AsyncBlock<T> async, SyncBlock<T> onError, SyncBlock<T> onSuccess) {
+        this(plugin, async, new SplitResultBlock<T>(onError, onSuccess));
+    }
+
     @Override
     public void run() {
         try {
@@ -62,4 +66,22 @@ public class AsyncTask<T> implements Runnable {
         void run(AsyncTask<T> task);
     }
 
+    private static class SplitResultBlock<T> implements SyncBlock<T> {
+        private final SyncBlock<T> onError;
+        private final SyncBlock<T> onSuccess;
+
+        private SplitResultBlock(SyncBlock<T> onError, SyncBlock<T> onSuccess) {
+            this.onError = onError;
+            this.onSuccess = onSuccess;
+        }
+
+        @Override
+        public void run(AsyncTask<T> task) {
+            if (task.isFail()) {
+                onError.run(task);
+            } else {
+                onSuccess.run(task);
+            }
+        }
+    }
 }
