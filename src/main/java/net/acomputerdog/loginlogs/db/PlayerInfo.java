@@ -17,20 +17,26 @@ import java.util.UUID;
 
 @DatabaseTable (daoClass = PlayerInfo.PlayerInfoDaoImpl.class, tableName = "PlayerInfo")
 public class PlayerInfo {
+    private static final String ID_COLUMN = "uuid";
+    private static final String NAME_COLUMN = "lastKnownName";
+    private static final String FIRST_LOGIN_COLUMN = "firstLogin";
+    private static final String LAST_LOGIN_COLUMN = "lastLogin";
+    private static final String LAST_LOGOUT_COLUMN = "lastLogout";
+    
     @Id
-    @Column(nullable = false, name = "uuid")
+    @Column(nullable = false, name = ID_COLUMN)
     UUID uuid;
 
-    @Column(nullable = false, length = 64, name = "lastKnownName")
+    @Column(nullable = false, length = 64, name = NAME_COLUMN)
     String lastKnownName;
 
-    @Column(name = "firstLogin")
+    @Column(name = FIRST_LOGIN_COLUMN)
     Date firstLogin;
 
-    @Column(name = "lastLogin")
+    @Column(name = LAST_LOGIN_COLUMN)
     Date lastLogin;
 
-    @Column(name = "lastLogout")
+    @Column(name = LAST_LOGOUT_COLUMN)
     Date lastLogout;
 
     PlayerInfo() {
@@ -120,6 +126,7 @@ public class PlayerInfo {
      * TODO prepared statements
      */
     public static class PlayerInfoDaoImpl extends BaseDaoImpl<PlayerInfo, UUID> implements PlayerInfoDao {
+
         public PlayerInfoDaoImpl(ConnectionSource connectionSource) throws SQLException {
             super(connectionSource, PlayerInfo.class);
         }
@@ -144,11 +151,11 @@ public class PlayerInfo {
             try {
                 QueryBuilder<PlayerInfo, UUID> builder = this.queryBuilder();
                 if (couldBeUUID(id)) {
-                    builder.where().eq("uuid", UUID.fromString(id)).or().eq("lastKnownName", id);
+                    builder.where().eq(ID_COLUMN, UUID.fromString(id)).or().eq(NAME_COLUMN, id);
                 } else {
-                    builder.where().eq("lastKnownName", id);
+                    builder.where().eq(NAME_COLUMN, id);
                 }
-                builder.orderBy("lastLogin", true);
+                builder.orderBy(LAST_LOGIN_COLUMN, true);
                 return builder.queryForFirst();
             } catch (IllegalArgumentException e) {
                 // UUID was invalid
@@ -159,16 +166,16 @@ public class PlayerInfo {
         @Override
         public List<PlayerInfo> getByLoginAfter(Date date) throws SQLException {
             QueryBuilder<PlayerInfo, UUID> builder = this.queryBuilder();
-            builder.where().ge("lastLogin", date);
-            builder.orderBy("lastLogin", true);
+            builder.where().ge(LAST_LOGIN_COLUMN, date);
+            builder.orderBy(LAST_LOGIN_COLUMN, true);
             return builder.query();
         }
 
         @Override
         public List<PlayerInfo> getByLogoutAfter(Date date) throws SQLException {
             QueryBuilder<PlayerInfo, UUID> builder = this.queryBuilder();
-            builder.where().ge("lastLogout", date);
-            builder.orderBy("lastLogout", true);
+            builder.where().ge(LAST_LOGOUT_COLUMN, date);
+            builder.orderBy(LAST_LOGOUT_COLUMN, true);
             return builder.query();
         }
 
