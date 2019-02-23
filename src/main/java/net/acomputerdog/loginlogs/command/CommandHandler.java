@@ -31,17 +31,8 @@ public class CommandHandler {
                 case "lastlog":
                     onLastLog(sender, args);
                     break;
-                case "lastlogin":
-                    onLastLogin(sender, args);
-                    break;
-                case "lastlogout":
-                    onLastLogout(sender, args);
-                    break;
                 case "lastlogins":
                     onLastLogins(sender);
-                    break;
-                case "firstlogin":
-                    onFirstLogin(sender, args);
                     break;
                 case "lastlogouts":
                     onLastLogouts(sender);
@@ -139,84 +130,6 @@ public class CommandHandler {
                 }));
             } else {
                 sender.sendMessage(ChatColor.RED + "Invalid usage!  Use lastlog <name | uuid>.");
-            }
-        } else {
-            sender.sendMessage(ChatColor.RED + "You do not have permission!");
-        }
-    }
-
-    private void onLastLogin(CommandSender sender, String[] args) {
-        if (sender.hasPermission("loginlogs.command.lastlogin")) {
-            if (args.length >= 1) {
-                Bukkit.getScheduler().runTaskAsynchronously(this.plugin, new AsyncTask<PlayerInfo>(this.plugin, t -> {
-                    t.setResult(plugin.getPlayerInfoDao().getPlayerByNameOrId(args[0]));
-                }, t -> {
-                    if (t.isFail()) {
-                        plugin.getLogger().log(Level.SEVERE, "Exception handling get player last login", t.getException());
-                        sender.sendMessage(ChatColor.RED + "An error occurred while processing this command.  Please report this to a server administrator.");
-                    } else {
-                        PlayerInfo player = t.getResult();
-                        if (player != null) {
-                            sender.sendMessage(ChatColor.DARK_AQUA + "Last known login for player " + player.getCombinedName() + ": " + formatLastLogin(player));
-                        } else {
-                            sender.sendMessage(ChatColor.YELLOW + "No data for that player.");
-                        }
-                    }
-                }));
-            } else {
-                sender.sendMessage(ChatColor.RED + "Invalid usage!  Use lastlogin <name | uuid>.");
-            }
-        } else {
-            sender.sendMessage(ChatColor.RED + "You do not have permission!");
-        }
-    }
-
-    private void onLastLogout(CommandSender sender, String[] args) {
-        if (sender.hasPermission("loginlogs.command.lastlogout")) {
-            if (args.length == 1) {
-                Bukkit.getScheduler().runTaskAsynchronously(this.plugin, new AsyncTask<PlayerInfo>(this.plugin, t -> {
-                    t.setResult(plugin.getPlayerInfoDao().getPlayerByNameOrId(args[0]));
-                }, t -> {
-                    if (t.isFail()) {
-                        plugin.getLogger().log(Level.SEVERE, "Exception handling get player last logout", t.getException());
-                        sender.sendMessage(ChatColor.RED + "An error occurred while processing this command.  Please report this to a server administrator.");
-                    } else {
-                        PlayerInfo player = t.getResult();
-                        if (player != null) {
-                            sender.sendMessage(ChatColor.DARK_AQUA + "Last known logout for player " + player.getCombinedName() + ": " + formatLastLogout(player));
-                        } else {
-                            sender.sendMessage(ChatColor.YELLOW + "No data for that player.");
-                        }
-                    }
-                }));
-            } else {
-                sender.sendMessage(ChatColor.RED + "Invalid usage!  Use lastlogout <name | uuid>.");
-            }
-        } else {
-            sender.sendMessage(ChatColor.RED + "You do not have permission!");
-        }
-    }
-
-    private void onFirstLogin(CommandSender sender, String[] args) {
-        if (sender.hasPermission("loginlogs.command.firstlogin")) {
-            if (args.length == 1) {
-                Bukkit.getScheduler().runTaskAsynchronously(this.plugin, new AsyncTask<PlayerInfo>(this.plugin, t -> {
-                    t.setResult(plugin.getPlayerInfoDao().getPlayerByNameOrId(args[0]));
-                }, t -> {
-                    if (t.isFail()) {
-                        plugin.getLogger().log(Level.SEVERE, "Exception handling get player first login", t.getException());
-                        sender.sendMessage(ChatColor.RED + "An error occurred while processing this command.  Please report this to a server administrator.");
-                    } else {
-                        PlayerInfo player = t.getResult();
-                        if (player != null) {
-                            sender.sendMessage(ChatColor.DARK_AQUA + "First known login for player " + player.getCombinedName() + ": " + formatFirstLogin(player));
-                        } else {
-                            sender.sendMessage(ChatColor.YELLOW + "No data for that player.");
-                        }
-                    }
-                }));
-            } else {
-                sender.sendMessage(ChatColor.RED + "Invalid usage!  Use firstlogin <name | uuid>.");
             }
         } else {
             sender.sendMessage(ChatColor.RED + "You do not have permission!");

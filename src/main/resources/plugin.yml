@@ -11,31 +11,16 @@ commands:
     permission: loginlogs.command.lastlog
     usage: /lastlog <name | uuid>
     aliases: llp
-  lastlogin:
-    description: Look up player's last login
-    permission: loginlogs.command.lastlogin
-    usage: /lastlogin <name | uuid>
-    aliases: lli
-  lastlogout:
-    description: Look up player's last logout
-    permission: loginlogs.command.lastlogout
-    usage: /lastlogout <name | uuid>
-    aliases: llo
   lastlogins:
     description: Look up recent player logins
     permission: loginlogs.command.lastlogins
     usage: /lastlogins
-    aliases: [ll, li, llis, lastlogs]
+    aliases: [ll, lli, llis, lastlogs]
   lastlogouts:
     description: Look up recent player logouts
     permission: loginlogs.command.lastlogouts
     usage: /lastlogouts
-    aliases: [lo, llos]
-  firstlogin:
-    description: Look up player's first login
-    permission: loginlogs.command.firstlogin
-    usage: /firstlogin <name | uuid>
-    aliases: fli
+    aliases: [llo, llos]
 
 permissions:
   loginlogs.command.*:
@@ -43,25 +28,13 @@ permissions:
     default: op
     children:
       lastlog.command.lastlog: true
-      lastlog.command.lastlogin: true
-      lastlog.command.lastlogout: true
       lastlog.command.lastlogins: true
-      lastlog.command.firstlogin: true
   loginlogs.command.lastlog:
     description: Use /lastlog
-    default: op
-  loginlogs.command.lastlogin:
-    description: Use /lastlogin
-    default: op
-  loginlogs.command.lastlogout:
-    description: Use /lastlogout
     default: op
   loginlogs.command.lastlogins:
     description: Use /lastlogins
     default: true
   loginlogs.command.lastlogouts:
     description: Use /lastlogouts
-    default: op
-  loginlogs.command.firstlogin:
-    description: Use /firstlogin
-    default: op
+    default: true
