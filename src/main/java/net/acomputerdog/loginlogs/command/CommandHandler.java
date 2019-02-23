@@ -1,8 +1,9 @@
 package net.acomputerdog.loginlogs.command;
 
 import net.acomputerdog.loginlogs.PluginLoginLogs;
-import net.acomputerdog.loginlogs.log.PlayerList;
-import net.acomputerdog.loginlogs.main.LLPlayer;
+import net.acomputerdog.loginlogs.db.PlayerInfo;
+import net.acomputerdog.loginlogs.util.AsyncTask;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -17,14 +18,10 @@ import java.util.logging.Level;
  * TODO refactor to avoid duplicated permission checks / etc
  */
 public class CommandHandler {
-    private final PlayerList playerList;
-    private final Date date;
     private final PluginLoginLogs plugin;
 
-    public CommandHandler(PluginLoginLogs plugin, PlayerList playerList) {
+    public CommandHandler(PluginLoginLogs plugin) {
         this.plugin = plugin;
-        this.playerList = playerList;
-        this.date = new Date();
     }
 
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -65,13 +62,26 @@ public class CommandHandler {
 
     private void onLastLogins(CommandSender sender) {
         if (sender.hasPermission("loginlogs.command.lastlogins")) {
-            sender.sendMessage(ChatColor.AQUA + "Recent logins:");
-            List<LLPlayer> recentLogins = playerList.getRecentLogins();
-            for (LLPlayer player : recentLogins) {
-                if (player != null) {
-                    sender.sendMessage(ChatColor.DARK_AQUA + player.getName() + " - " + formatLastLogin(player));
+            Bukkit.getScheduler().runTaskAsynchronously(this.plugin, new AsyncTask<List<PlayerInfo>>(this.plugin, t -> {
+                t.setResult(plugin.getPlayerInfoDao().getByLoginAfter(new Date(System.currentTimeMillis() - plugin.getRecentLoginTime())));
+            }, t -> {
+                if (t.isFail()) {
+                    plugin.getLogger().log(Level.SEVERE, "Exception handling list recent logins", t.getException());
+                    sender.sendMessage(ChatColor.RED + "An error occurred while processing this command.  Please report this to a server administrator.");
+                } else {
+                    List<PlayerInfo> recentLogins = t.getResult();
+                    if (!recentLogins.isEmpty()) {
+                        sender.sendMessage(ChatColor.AQUA + "Recent logins:");
+                        for (PlayerInfo player : recentLogins) {
+                            if (player != null) {
+                                sender.sendMessage(ChatColor.DARK_AQUA + player.getLastKnownName() + " - " + formatLastLogin(player));
+                            }
+                        }
+                    } else {
+                        sender.sendMessage(ChatColor.AQUA + "No recent logins.");
+                    }
                 }
-            }
+            }));
         } else {
             sender.sendMessage(ChatColor.RED + "You do not have permission!");
         }
@@ -79,13 +89,26 @@ public class CommandHandler {
 
     private void onLastLogouts(CommandSender sender) {
         if (sender.hasPermission("loginlogs.command.lastlogouts")) {
-            sender.sendMessage(ChatColor.AQUA + "Recent logouts:");
-            List<LLPlayer> recentLogouts = playerList.getRecentLogouts();
-            for (LLPlayer player : recentLogouts) {
-                if (player != null) {
-                    sender.sendMessage(ChatColor.DARK_AQUA + player.getName() + " - " + formatLastLogout(player));
+            Bukkit.getScheduler().runTaskAsynchronously(this.plugin, new AsyncTask<List<PlayerInfo>>(this.plugin, t -> {
+                t.setResult(plugin.getPlayerInfoDao().getByLogoutAfter(new Date(System.currentTimeMillis() - plugin.getRecentLogoutTime())));
+            }, t -> {
+                if (t.isFail()) {
+                    plugin.getLogger().log(Level.SEVERE, "Exception handling list recent logouts", t.getException());
+                    sender.sendMessage(ChatColor.RED + "An error occurred while processing this command.  Please report this to a server administrator.");
+                } else {
+                    List<PlayerInfo> recentLogouts = t.getResult();
+                    if (!recentLogouts.isEmpty()) {
+                        sender.sendMessage(ChatColor.AQUA + "Recent logouts:");
+                        for (PlayerInfo player : recentLogouts) {
+                            if (player != null) {
+                                sender.sendMessage(ChatColor.DARK_AQUA + player.getLastKnownName() + " - " + formatLastLogout(player));
+                            }
+                        }
+                    } else {
+                        sender.sendMessage(ChatColor.AQUA + "No recent logouts.");
+                    }
                 }
-            }
+            }));
         } else {
             sender.sendMessage(ChatColor.RED + "You do not have permission!");
         }
@@ -93,19 +116,27 @@ public class CommandHandler {
 
     private void onLastLog(CommandSender sender, String[] args) {
         if (sender.hasPermission("loginlogs.command.lastlog")) {
-            if (args.length >= 1) {
-                String id = args[0];
-                LLPlayer player = playerList.find(id);
-                if (player != null) {
-                    sender.sendMessage(new String[]{
-                            ChatColor.AQUA + "Log info for player " + player.getCombinedName() + ":",
-                            ChatColor.DARK_AQUA + "First known login: " + formatFirstLogin(player),
-                            ChatColor.DARK_AQUA + "Last known login: " + formatLastLogin(player),
-                            ChatColor.DARK_AQUA + "Last known logout: " + formatLastLogout(player)
-                    });
-                } else {
-                    sender.sendMessage(ChatColor.RED + "Unable to find a player by that name/uuid!");
-                }
+            if (args.length == 1) {
+                Bukkit.getScheduler().runTaskAsynchronously(this.plugin, new AsyncTask<PlayerInfo>(this.plugin, t -> {
+                    t.setResult(plugin.getPlayerInfoDao().getPlayerByNameOrId(args[0]));
+                }, t -> {
+                    if (t.isFail()) {
+                        plugin.getLogger().log(Level.SEVERE, "Exception handling player login", t.getException());
+                        sender.sendMessage(ChatColor.RED + "An error occurred while processing this command.  Please report this to a server administrator.");
+                    } else {
+                        PlayerInfo player = t.getResult();
+                        if (player != null) {
+                            sender.sendMessage(new String[]{
+                                    ChatColor.AQUA + "Log info for player " + player.getCombinedName() + ":",
+                                    ChatColor.DARK_AQUA + "First known login: " + formatFirstLogin(player),
+                                    ChatColor.DARK_AQUA + "Last known login: " + formatLastLogin(player),
+                                    ChatColor.DARK_AQUA + "Last known logout: " + formatLastLogout(player)
+                            });
+                        } else {
+                            sender.sendMessage(ChatColor.YELLOW + "No data for that player.");
+                        }
+                    }
+                }));
             } else {
                 sender.sendMessage(ChatColor.RED + "Invalid usage!  Use lastlog <name | uuid>.");
             }
@@ -117,13 +148,21 @@ public class CommandHandler {
     private void onLastLogin(CommandSender sender, String[] args) {
         if (sender.hasPermission("loginlogs.command.lastlogin")) {
             if (args.length >= 1) {
-                String id = args[0];
-                LLPlayer player = playerList.find(id);
-                if (player != null) {
-                    sender.sendMessage(ChatColor.DARK_AQUA + "Last known login for player " + player.getCombinedName() + ": " + formatLastLogin(player));
-                } else {
-                    sender.sendMessage(ChatColor.RED + "Unable to find a player by that name/uuid!");
-                }
+                Bukkit.getScheduler().runTaskAsynchronously(this.plugin, new AsyncTask<PlayerInfo>(this.plugin, t -> {
+                    t.setResult(plugin.getPlayerInfoDao().getPlayerByNameOrId(args[0]));
+                }, t -> {
+                    if (t.isFail()) {
+                        plugin.getLogger().log(Level.SEVERE, "Exception handling get player last login", t.getException());
+                        sender.sendMessage(ChatColor.RED + "An error occurred while processing this command.  Please report this to a server administrator.");
+                    } else {
+                        PlayerInfo player = t.getResult();
+                        if (player != null) {
+                            sender.sendMessage(ChatColor.DARK_AQUA + "Last known login for player " + player.getCombinedName() + ": " + formatLastLogin(player));
+                        } else {
+                            sender.sendMessage(ChatColor.YELLOW + "No data for that player.");
+                        }
+                    }
+                }));
             } else {
                 sender.sendMessage(ChatColor.RED + "Invalid usage!  Use lastlogin <name | uuid>.");
             }
@@ -134,14 +173,22 @@ public class CommandHandler {
 
     private void onLastLogout(CommandSender sender, String[] args) {
         if (sender.hasPermission("loginlogs.command.lastlogout")) {
-            if (args.length >= 1) {
-                String id = args[0];
-                LLPlayer player = playerList.find(id);
-                if (player != null) {
-                    sender.sendMessage(ChatColor.DARK_AQUA + "Last known logout for player " + player.getCombinedName() + ": " + formatLastLogout(player));
-                } else {
-                    sender.sendMessage(ChatColor.RED + "Unable to find a player by that name/uuid!");
-                }
+            if (args.length == 1) {
+                Bukkit.getScheduler().runTaskAsynchronously(this.plugin, new AsyncTask<PlayerInfo>(this.plugin, t -> {
+                    t.setResult(plugin.getPlayerInfoDao().getPlayerByNameOrId(args[0]));
+                }, t -> {
+                    if (t.isFail()) {
+                        plugin.getLogger().log(Level.SEVERE, "Exception handling get player last logout", t.getException());
+                        sender.sendMessage(ChatColor.RED + "An error occurred while processing this command.  Please report this to a server administrator.");
+                    } else {
+                        PlayerInfo player = t.getResult();
+                        if (player != null) {
+                            sender.sendMessage(ChatColor.DARK_AQUA + "Last known logout for player " + player.getCombinedName() + ": " + formatLastLogout(player));
+                        } else {
+                            sender.sendMessage(ChatColor.YELLOW + "No data for that player.");
+                        }
+                    }
+                }));
             } else {
                 sender.sendMessage(ChatColor.RED + "Invalid usage!  Use lastlogout <name | uuid>.");
             }
@@ -152,14 +199,22 @@ public class CommandHandler {
 
     private void onFirstLogin(CommandSender sender, String[] args) {
         if (sender.hasPermission("loginlogs.command.firstlogin")) {
-            if (args.length >= 1) {
-                String id = args[0];
-                LLPlayer player = playerList.find(id);
-                if (player != null) {
-                    sender.sendMessage(ChatColor.DARK_AQUA + "First known login for player " + player.getCombinedName() + ": " + formatFirstLogin(player));
-                } else {
-                    sender.sendMessage(ChatColor.RED + "Unable to find a player by that name/uuid!");
-                }
+            if (args.length == 1) {
+                Bukkit.getScheduler().runTaskAsynchronously(this.plugin, new AsyncTask<PlayerInfo>(this.plugin, t -> {
+                    t.setResult(plugin.getPlayerInfoDao().getPlayerByNameOrId(args[0]));
+                }, t -> {
+                    if (t.isFail()) {
+                        plugin.getLogger().log(Level.SEVERE, "Exception handling get player first login", t.getException());
+                        sender.sendMessage(ChatColor.RED + "An error occurred while processing this command.  Please report this to a server administrator.");
+                    } else {
+                        PlayerInfo player = t.getResult();
+                        if (player != null) {
+                            sender.sendMessage(ChatColor.DARK_AQUA + "First known login for player " + player.getCombinedName() + ": " + formatFirstLogin(player));
+                        } else {
+                            sender.sendMessage(ChatColor.YELLOW + "No data for that player.");
+                        }
+                    }
+                }));
             } else {
                 sender.sendMessage(ChatColor.RED + "Invalid usage!  Use firstlogin <name | uuid>.");
             }
@@ -168,24 +223,23 @@ public class CommandHandler {
         }
     }
 
-    private String formatTime(long time) {
-        if (time == LLPlayer.NEVER) {
+    private String formatTime(Date date) {
+        if (date == null) {
             return "N/A";
         } else {
-            date.setTime(time);
             return date.toString();
         }
     }
 
-    private String formatLastLogin(LLPlayer player) {
+    private String formatLastLogin(PlayerInfo player) {
         return formatTime(player.getLastLogin());
     }
 
-    private String formatFirstLogin(LLPlayer player) {
+    private String formatFirstLogin(PlayerInfo player) {
         return formatTime(player.getFirstLogin());
     }
 
-    private String formatLastLogout(LLPlayer player) {
+    private String formatLastLogout(PlayerInfo player) {
         return formatTime(player.getLastLogout());
     }
 }

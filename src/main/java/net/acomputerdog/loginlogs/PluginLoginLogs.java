@@ -1,8 +1,12 @@
 package net.acomputerdog.loginlogs;
 
+import com.j256.ormlite.dao.DaoManager;
+import com.j256.ormlite.jdbc.JdbcPooledConnectionSource;
+import com.j256.ormlite.table.TableUtils;
 import net.acomputerdog.loginlogs.command.CommandHandler;
-import net.acomputerdog.loginlogs.log.PlayerList;
-import net.acomputerdog.loginlogs.main.LLPlayer;
+import net.acomputerdog.loginlogs.db.PlayerInfo;
+import net.acomputerdog.loginlogs.util.AsyncTask;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -13,58 +17,73 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.*;
+import java.sql.SQLException;
+import java.util.Date;
 import java.util.logging.Level;
 
 /**
  * Plugin main class
  */
 public class PluginLoginLogs extends JavaPlugin implements Listener {
-    private PlayerList playerList;
     private CommandHandler commandHandler;
 
-    private File playerFile;
+    private JdbcPooledConnectionSource dbConnection;
+    private PlayerInfo.PlayerInfoDao playerInfoDao;
+
+    private long recentLoginTime;
+    private long recentLogoutTime;
 
     @Override
     public void onEnable() {
         try {
-            if (!(getDataFolder().exists() || getDataFolder().mkdirs())) {
-                getLogger().warning("Unable to create data folder!");
-            }
-            playerFile = new File(getDataFolder(), "players.dat");
+            saveDefaultConfig();
 
-            playerList = new PlayerList(getLogger());
-            if (playerFile.exists()) {
-                loadPlayerFile();
-            } else {
-                getLogger().warning("Player logs do not exist.  Logs will not be loaded.");
-            }
+            recentLoginTime = getConfig().getLong("recentLoginTime");
+            recentLogoutTime = getConfig().getLong("recentLogoutTime");
 
-            commandHandler = new CommandHandler(this, playerList);
+            setupDatabase();
+
+            commandHandler = new CommandHandler(this);
 
             getServer().getPluginManager().registerEvents(this, this);
 
             getLogger().info("Startup complete.");
+        } catch (SQLException e) {
+            getLogger().log(Level.SEVERE, "Error connecting to database", e);
+            getServer().getPluginManager().disablePlugin(this);
         } catch (Exception e) {
             getLogger().log(Level.SEVERE, "Uncaught exception starting LoginLogs", e);
             getServer().getPluginManager().disablePlugin(this);
         }
     }
 
-    private void loadPlayerFile() {
-        try (BufferedReader reader = new BufferedReader(new FileReader(playerFile))) {
-            playerList.load(reader);
-        } catch (IOException e) {
-            getLogger().log(Level.SEVERE, "IO error loading player data.", e);
-        }
+    private void setupDatabase() throws SQLException {
+        String host = getConfig().getString("database.host");
+        String port = getConfig().getString("database.port");
+        String db = getConfig().getString("database.db");
+        String user = getConfig().getString("database.user");
+        String pass = getConfig().getString("database.pass");
+
+
+        String connString = String.format("jdbc:mysql://%s:%s/%s", host, port, db);
+        dbConnection = new JdbcPooledConnectionSource(connString, user, pass);
+
+        TableUtils.createTableIfNotExists(dbConnection, PlayerInfo.class);
+
+        playerInfoDao = DaoManager.createDao(dbConnection, PlayerInfo.class);
     }
+
 
     @Override
     public void onDisable() {
-        try (Writer writer = new FileWriter(playerFile)) {
-            playerList.save(writer);
-        } catch (IOException e) {
-            getLogger().log(Level.SEVERE, "Exception saving player logs", e);
+        try {
+            if (dbConnection != null) {
+                dbConnection.close();
+            }
+            playerInfoDao = null;
+            dbConnection = null;
+        } catch (Exception e) {
+            getLogger().log(Level.SEVERE, "Exception closing database connection", e);
         }
 
         getLogger().info("Shutdown complete.");
@@ -73,27 +92,35 @@ public class PluginLoginLogs extends JavaPlugin implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerLogin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
-        String uuid = p.getUniqueId().toString();
-        String name = p.getName();
-        if (name == null) {
-            name = "";
-        }
-        LLPlayer player = playerList.getOrCreate(uuid, name);
-        player.setLastLogin(System.currentTimeMillis());
-        playerList.updateRecentLogins(player);
+        Date now = new Date();
+
+        Bukkit.getScheduler().runTaskAsynchronously(this, new AsyncTask<PlayerInfo>(this, t -> {
+            PlayerInfo player = playerInfoDao.getOrCreatePlayer(p);
+            if (player.getFirstLogin() == null) {
+                player.setFirstLogin(now);
+            }
+            player.setLastLogin(now);
+            playerInfoDao.update(player);
+        }, t -> {
+            if (t.isFail()) {
+                getLogger().log(Level.SEVERE, "Exception handling player login", t.getException());
+            }
+        }));
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerLogout(PlayerQuitEvent e) {
         Player p = e.getPlayer();
-        String uuid = p.getUniqueId().toString();
-        String name = p.getName();
-        if (name == null) {
-            name = "";
-        }
-        LLPlayer player = playerList.getOrCreate(uuid, name);
-        player.setLastLogout(System.currentTimeMillis());
-        playerList.updateRecentLogouts(player);
+
+        Bukkit.getScheduler().runTaskAsynchronously(this, new AsyncTask<PlayerInfo>(this, t -> {
+            PlayerInfo player = playerInfoDao.getOrCreatePlayer(p);
+            player.setLastLogout(new Date());
+            playerInfoDao.update(player);
+        }, t -> {
+            if (t.isFail()) {
+                getLogger().log(Level.SEVERE, "Exception handling player logout", t.getException());
+            }
+        }));
     }
 
     @Override
@@ -101,8 +128,15 @@ public class PluginLoginLogs extends JavaPlugin implements Listener {
         return commandHandler.onCommand(sender, command, label, args);
     }
 
-    public PlayerList getPlayerList() {
-        return playerList;
+    public PlayerInfo.PlayerInfoDao getPlayerInfoDao() {
+        return playerInfoDao;
     }
 
+    public long getRecentLoginTime() {
+        return recentLoginTime;
+    }
+
+    public long getRecentLogoutTime() {
+        return recentLogoutTime;
+    }
 }

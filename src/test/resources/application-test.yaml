@@ -1,0 +1,5 @@
+ebean:
+  test:
+    platform: mysql
+    ddlMode: dropCreate
+    dbName: minecraft

@@ -1,0 +1,9 @@
+database:
+  host: localhost
+  port: 3306
+  db: minecraft
+  user: user
+  pass: pass
+
+recentLoginTime: 43200000
+recentLogoutTime: 43200000
