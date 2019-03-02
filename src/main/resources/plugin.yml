@@ -11,6 +11,8 @@ commands:
     permission: loginlogs.command.lastlog
     usage: /lastlog <name | uuid>
     aliases: llp
+    min-args: 1
+    max-args: 1
   lastlogins:
     description: Look up recent player logins
     permission: loginlogs.command.lastlogins

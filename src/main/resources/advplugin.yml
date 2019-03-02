@@ -1,0 +1,4 @@
+database:
+  enabled: true
+  data_classes: [net.acomputerdog.loginlogs.db.PlayerInfo]
+  create_tables: true
