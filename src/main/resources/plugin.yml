@@ -40,3 +40,7 @@ permissions:
   loginlogs.command.lastlogouts:
     description: Use /lastlogouts
     default: true
+
+adv-database:
+  data_classes: [net.acomputerdog.loginlogs.db.PlayerInfo]
+  create_tables: true

@@ -4,6 +4,7 @@ database:
   db: minecraft
   user: user
   pass: pass
+  use-ssl: false
 
 recentLoginTime: 43200000
 recentLogoutTime: 43200000

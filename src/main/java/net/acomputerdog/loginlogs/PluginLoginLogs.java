@@ -31,6 +31,7 @@ public class PluginLoginLogs extends AdvancedPluginFull implements Listener {
             commandHandler = new CommandHandler(this);
 
             super.onEnable();
+
             playerInfoDao = getDatabase().lookupDao(PlayerInfo.class);
 
             recentLoginTime = getConfig().getLong("recentLoginTime");
